@@ -1,31 +1,28 @@
 # machine-learning/BreastCancer-ML
+## Installation
 
+1. Create new virtual environment:
+    If you use _conda_:
+    ```
+    conda create --name your-environment-name python=3.9
+    ```
+    Alternatively use any other virtual enviroment manager of your choice.
 
+2. Activate environment
+    ```
+    conda activate your-environment-name
+    ```
+3. Make sure you use recent _pip_ version:
+    ```
+    python -m pip install --upgrade pip
+    ```
+4. Install packages:
 
-## Getting Started
-
-Download links:
-
-SSH clone URL: ssh://git@git.jetbrains.space/solvro/machine-learning/BreastCancer-ML.git
-
-HTTPS clone URL: https://git.jetbrains.space/solvro/machine-learning/BreastCancer-ML.git
-
-
-
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
-
-## Prerequisites
-
-What things you need to install the software and how to install them.
-
-```
-Examples
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a production system.
-
-## Resources
-
-Add links to external resources for this project, such as CI server, bug tracker, etc.
+    ```
+    python -m pip install -e .[dev] --extra-index-url https://download.pytorch.org/whl/cu116
+    ```
+5. Enable pre-commit
+    ```
+    pre-commit install
+    ```
+6. Enjoy
