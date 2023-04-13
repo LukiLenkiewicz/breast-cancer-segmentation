@@ -1,3 +1,4 @@
+import argparse
 import glob
 import os
 
@@ -31,5 +32,8 @@ def merge_all_masks(path):
             os.remove(a)
 
 
-directoryPath = ""  # path should end with /Dataset_BUSI_with_GT/**/*.png
-merge_all_masks(directoryPath)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("sourceDirectory", type=str)
+    args = parser.parse_args()
+    merge_all_masks(args.sourceDirectory)
