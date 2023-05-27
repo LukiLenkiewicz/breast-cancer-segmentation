@@ -1,0 +1,40 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Merge",
+            "type": "python",
+            "request": "launch",
+            "module": "scripts.merge",
+            "args": [
+                "data/raw",
+                "data/merged",
+            ],
+            "justMyCode": false
+        },
+        {
+            "name": "Preprocess",
+            "type": "python",
+            "request": "launch",
+            "module": "scripts.preprocess",
+            "args": [
+                "data/merged",
+                "data/preprocessed",
+            ],
+            "justMyCode": false
+        },
+        {
+            "name": "Train",
+            "type": "python",
+            "request": "launch",
+            "module": "scripts.train",
+            "args": [
+                "data/preprocessed",
+            ],
+            "justMyCode": false
+        }
+    ]
+}

@@ -13,7 +13,9 @@ dependencies = [
     "torch ~= 1.13",
     "torchmetrics ~= 0.11",
     "pytorch-lightning ~= 1.9",
-    "monai ~= 1.1"
+    "monai ~= 1.1",
+    "Pillow ~= 9.5",
+    "type ~= 0.9"
 ]
 
 [project.optional-dependencies]
@@ -26,6 +28,9 @@ lint = [
     "pre-commit ~= 2.20",
 ]
 dev = ["ai[lint]"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.black]
 line_length = 120
