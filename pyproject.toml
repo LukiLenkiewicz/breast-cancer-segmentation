@@ -15,7 +15,7 @@ dependencies = [
     "pytorch-lightning ~= 1.9",
     "monai ~= 1.1",
     "Pillow ~= 9.5",
-    "type ~= 0.9"
+    "typer ~= 0.9"
 ]
 
 [project.optional-dependencies]
