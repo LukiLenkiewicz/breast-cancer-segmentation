@@ -14,6 +14,7 @@ from torch.utils.data import (
 )
 
 from ai.model import UNet
+from ai.callback import LogPredictionsCallback
 from ai.segmentation_module import SegmentationModule
 from ai.transforms import (
     train_transforms,
@@ -38,7 +39,7 @@ def get_datasets(train_paths: list[str], val_paths: list[str]) -> tuple[Dataset,
 
 def train(
         input_path: Path,
-        run_name: Optional[str]=None, 
+        run_name: Optional[str] = None, 
         num_epochs: int = 10,
         layer_sizes: List[int] = [2, 4, 8, 16],
         mid_channels: int = 32,
