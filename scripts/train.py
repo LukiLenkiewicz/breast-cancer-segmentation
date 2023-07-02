@@ -59,7 +59,7 @@ def train(
     model = UNet(input_channels=1, layer_channels=layer_sizes, mid_channels=mid_channels, dropout_rate=dropout)
     segmentation_module = SegmentationModule(model)
 
-    trainer = pl.Trainer(max_epochs=num_epochs, accelerator="auto", logger=wandb_logger)
+    trainer = pl.Trainer(max_epochs=num_epochs, accelerator="auto", logger=wandb_logger, callbacks=LogPredictionsCallback())
     trainer.fit(segmentation_module, train_dl, val_dl)
 
     wandb.finish()
