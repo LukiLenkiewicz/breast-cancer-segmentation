@@ -4,6 +4,7 @@ import torch.optim as optim
 
 from monai.losses import DiceLoss
 
+from ai.utils import get_accuracy
 
 class SegmentationModule(pl.LightningModule):
     def __init__(self, model: nn.Module, lr=1e-3):
@@ -16,7 +17,9 @@ class SegmentationModule(pl.LightningModule):
         x, y = batch["image"], batch["label"]
         y_hat = self.model(x)
         loss = self.loss(y_hat, y)
+        accuracy = get_accuracy(y, y_hat)
 
+        self.log("train_acc", accuracy, on_epoch=True, on_step=False)
         self.log("train_loss", loss, on_epoch=True, on_step=False)
         return loss
 
@@ -24,7 +27,9 @@ class SegmentationModule(pl.LightningModule):
         x, y = batch["image"], batch["label"]
         y_hat = self.model(x)
         loss = self.loss(y_hat, y)
+        accuracy = get_accuracy(y, y_hat)
 
+        self.log("val_acc", accuracy, on_epoch=True, on_step=False)
         self.log("val_loss", loss, on_epoch=True, on_step=False)
         return loss
 

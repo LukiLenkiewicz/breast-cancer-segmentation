@@ -8,6 +8,7 @@ import wandb
 import typer
 
 from monai.data.dataset import Dataset
+# from monai.networks.nets import UNet
 from torch.utils.data import (
     DataLoader,
     random_split,
@@ -40,7 +41,7 @@ def get_datasets(train_paths: list[str], val_paths: list[str]) -> tuple[Dataset,
 def train(
         input_path: Path,
         run_name: Optional[str] = None, 
-        num_epochs: int = 10,
+        num_epochs: int = 50,
         layer_sizes: List[int] = [2, 4, 8, 16],
         mid_channels: int = 32,
         dropout: float = 0.25
@@ -54,9 +55,11 @@ def train(
     train_ds, val_ds = get_datasets(train_paths, val_paths)
     train_dl, val_dl = get_dataloaders(train_ds, val_ds)
 
+    # wandb.init(mode="disabled")
     wandb_logger = WandbLogger(project='solvro-introduction', name=run_name)
 
     model = UNet(input_channels=1, layer_channels=layer_sizes, mid_channels=mid_channels, dropout_rate=dropout)
+    # model = UNet(spatial_dims=2, in_channels=1, out_channels=1, channels=[32, 64, 128, 256], strides=[1, 1, 1, 1])
     segmentation_module = SegmentationModule(model)
 
     trainer = pl.Trainer(max_epochs=num_epochs, accelerator="auto", logger=wandb_logger, callbacks=LogPredictionsCallback())
