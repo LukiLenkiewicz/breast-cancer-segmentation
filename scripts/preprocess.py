@@ -9,6 +9,7 @@ from monai.transforms import (
     EnsureChannelFirstd,
     LoadImaged,
     SaveImaged,
+    Resized,
 )
 from pqdm.processes import pqdm
 
@@ -21,7 +22,7 @@ def preprocess(input_path: Path, output_path: Path, n_jobs: int = 1):
         [
             LoadImaged(["image", "label"], reader="PILReader"),
             EnsureChannelFirstd(["image", "label"]),
-            CenterSpatialCropd(["image", "label"], roi_size=(128, 128)),
+            Resized(["image", "label"], spatial_size=(256, 256)),
             # Add more transforms
             SaveImaged(
                 keys=["image"],
