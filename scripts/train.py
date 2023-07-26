@@ -10,20 +10,20 @@ import wandb
 import typer
 
 from monai.data.dataset import Dataset
-from monai.networks.nets import UNet
+# from monai.networks.nets import UNet
 from torch.utils.data import (
     DataLoader,
     random_split,
 )
 
-# from ai.model import UNet
+from ai.model import UNet
 from ai.callback import LogPredictionsCallback
 from ai.segmentation_module import SegmentationModule
 from ai.transforms import (
     train_transforms,
     val_transforms,
 )
-from ai.utils import get_data_paths
+from ai.utils import get_data_paths, export_model
 
 
 def get_dataloaders(
@@ -60,16 +60,18 @@ def train(
     # wandb.init(mode="disabled")
     wandb_logger = WandbLogger(project='solvro-introduction', name=run_name)
 
-    # model = UNet(input_channels=1, layer_channels=layer_sizes, mid_channels=mid_channels, dropout_rate=dropout)
-    model = UNet(spatial_dims=2, in_channels=1, out_channels=1, channels=[32, 64, 128, 256], strides=[1, 1, 1, 1])
+    model = UNet(input_channels=1, layer_channels=layer_sizes, mid_channels=mid_channels, dropout_rate=dropout)
+    # model = UNet(spatial_dims=2, in_channels=1, out_channels=1, channels=[32, 64, 128, 256], strides=[1, 1, 1, 1])
     segmentation_module = SegmentationModule(model)
 
-    checkpoint_callback = ModelCheckpoint(dirpath=os.getcwd(), save_top_k=2, monitor="val_loss")
+    checkpoint_callback = ModelCheckpoint(dirpath=Path.cwd(), save_top_k=2, monitor="val_loss")
     predictions_callback = LogPredictionsCallback()
     trainer = pl.Trainer(max_epochs=num_epochs, accelerator="auto", logger=wandb_logger, callbacks=[checkpoint_callback, predictions_callback])
     trainer.fit(segmentation_module, train_dl, val_dl)
 
     wandb.finish()
+
+    export_model(model)
 
 if __name__ == "__main__":
     typer.run(train)

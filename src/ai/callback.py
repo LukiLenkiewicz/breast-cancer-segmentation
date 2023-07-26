@@ -1,5 +1,3 @@
-import os
-
 from PIL import Image
 import wandb
 from pytorch_lightning.callbacks import Callback
@@ -20,12 +18,12 @@ class LogPredictionsCallback(Callback):
         image_data = []
 
         for i, (image, mask, pred_mask) in enumerate(zip(images, ground_truth_masks, predicted_masks)):
-            image *= 255
-            image_pil = Image.fromarray(image.detach().numpy()[0]).convert("L")
-            mask *= 255
-            mask_pil = Image.fromarray(mask.detach().numpy()[0]).convert("L")
-            pred_mask *= 255
-            pred_mask_pil = Image.fromarray(pred_mask.detach().numpy()[0]).convert("L")
+            image_pil = image * 255
+            image_pil = Image.fromarray(image_pil.detach().numpy()[0]).convert("L")
+            mask_pil = mask * 255
+            mask_pil = Image.fromarray(mask_pil.detach().numpy()[0]).convert("L")
+            pred_mask_pil = pred_mask * 255
+            pred_mask_pil = Image.fromarray(pred_mask_pil.detach().numpy()[0]).convert("L")
             image_data.append([wandb.Image(image_pil), wandb.Image(mask_pil), wandb.Image(pred_mask_pil)])
 
         logger.log_table(key='comparison', columns=columns, data=image_data)
