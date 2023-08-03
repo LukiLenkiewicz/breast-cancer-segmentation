@@ -20,9 +20,9 @@ class LogPredictionsCallback(Callback):
         image_data = []
 
         for i, (image, mask, pred_mask) in enumerate(zip(images, ground_truth_masks, predicted_masks)):
-            image_pil *= 255
+            image *= 255
             image_pil = Image.fromarray(image.detach().numpy()[0]).convert("L")
-            mask_pil *= 255
+            mask *= 255
             mask_pil = Image.fromarray(mask.detach().numpy()[0]).convert("L")
             pred_mask *= 255
             pred_mask_pil = Image.fromarray(pred_mask.detach().numpy()[0]).convert("L")

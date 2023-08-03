@@ -66,7 +66,8 @@ def train(
 
     checkpoint_callback = ModelCheckpoint(dirpath=os.getcwd(), save_top_k=2, monitor="val_loss")
     predictions_callback = LogPredictionsCallback()
-    trainer = pl.Trainer(max_epochs=num_epochs, accelerator="auto", logger=wandb_logger, callbacks=[checkpoint_callback, predictions_callback])
+    # trainer = pl.Trainer(max_epochs=num_epochs, accelerator="auto", logger=wandb_logger, callbacks=[checkpoint_callback, predictions_callback])
+    trainer = pl.Trainer(max_epochs=num_epochs, accelerator="cpu", logger=wandb_logger, callbacks=[checkpoint_callback, predictions_callback])
     trainer.fit(segmentation_module, train_dl, val_dl)
 
     wandb.finish()
