@@ -106,7 +106,6 @@ class UNet(nn.Module):
         x = torch.cat([x2, x1], dim=1)
         return x
 
-
 class ConvBlock(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride, padding):
         super().__init__()

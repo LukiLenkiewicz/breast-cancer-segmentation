@@ -57,7 +57,7 @@ def train(
     train_ds, val_ds = get_datasets(train_paths, val_paths)
     train_dl, val_dl = get_dataloaders(train_ds, val_ds)
 
-    # wandb.init(mode="disabled")
+    wandb.init(mode="disabled")
     wandb_logger = WandbLogger(project='solvro-introduction', name=run_name)
 
     model = UNet(input_channels=1, layer_channels=layer_sizes, mid_channels=mid_channels, dropout_rate=dropout)

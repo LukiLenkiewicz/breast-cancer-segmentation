@@ -22,7 +22,7 @@ def preprocess(input_path: Path, output_path: Path, n_jobs: int = 1):
         [
             LoadImaged(["image", "label"], reader="PILReader"),
             EnsureChannelFirstd(["image", "label"]),
-            Resized(["image", "label"], spatial_size=(256, 256)),
+            Resized(["image", "label"], spatial_size=(256, 256), mode='nearest-exact'),
             # Add more transforms
             SaveImaged(
                 keys=["image"],

@@ -1,4 +1,5 @@
 import pytorch_lightning as pl
+import torch
 import torch.nn as nn
 import torch.optim as optim
 
@@ -17,7 +18,9 @@ class SegmentationModule(pl.LightningModule):
         x, y = batch["image"], batch["label"]
         y_hat = self.model(x)
         loss = self.loss(y_hat, y)
-        accuracy = get_accuracy(y, y_hat)
+
+        y_pred_label = (y_hat >= 0.5).type(torch.float32)*255
+        accuracy = get_accuracy(y, y_pred_label)
 
         self.log("train_acc", accuracy, on_epoch=True, on_step=False)
         self.log("train_loss", loss, on_epoch=True, on_step=False)
@@ -27,7 +30,9 @@ class SegmentationModule(pl.LightningModule):
         x, y = batch["image"], batch["label"]
         y_hat = self.model(x)
         loss = self.loss(y_hat, y)
-        accuracy = get_accuracy(y, y_hat)
+
+        y_pred_label = (y_hat >= 0.5).type(torch.float32)*255
+        accuracy = get_accuracy(y, y_pred_label)
 
         self.log("val_acc", accuracy, on_epoch=True, on_step=False)
         self.log("val_loss", loss, on_epoch=True, on_step=False)
