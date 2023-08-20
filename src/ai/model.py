@@ -11,7 +11,7 @@ class UNet(nn.Module):
         self,
         input_channels: int = 1,
         output_channels: int = 1,
-        layer_channels: list = [32, 64, 128],
+        layer_channels: list = [8, 16, 32, 64, 128],
         mid_channel_size: int = 256
     ):
         super().__init__()
@@ -25,7 +25,7 @@ class UNet(nn.Module):
         expansive_layer_channels = expansive_layer_channels[::-1]
         self.expansive_layer = self._generate_expansive_layer(expansive_layer_channels)
 
-        self.out_layer = ConvBlock(layer_channels[0], output_channels)
+        self.out_layer = nn.Conv2d(layer_channels[0], output_channels, kernel_size=1)
 
     def forward(self, x):
         skipped_tensors = []
@@ -96,15 +96,39 @@ class DecoderBlock(nn.Module):
 
 
 class ConvBlock(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int, kernel_size: int = 3, stride: int = 1, padding: int =1):
+    def __init__(self, in_channels: int, out_channels: int, kernel_size: int = 3, stride: int = 1, padding: int = 1):
         super().__init__()
         self.block = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding),
+            nn.BatchNorm2d(out_channels),
             nn.ReLU(),
             nn.Conv2d(out_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding),
+            nn.BatchNorm2d(out_channels),
             nn.ReLU(),
         )
 
     def forward(self, x):
         x = self.block(x)
+        return x
+
+
+class ResidualBlock(nn.Module):
+    def __init__(self, in_channels: int, out_channels: int, kernel_size: int = 3, stride: int = 1, padding: int = 1):
+        super().__init__()
+        self.block = nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(),
+            nn.Conv2d(out_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding),
+            nn.BatchNorm2d(out_channels),
+        )
+
+        self.relu = nn.ReLU()
+
+    def forward(self, x):
+        resiudal = x
+        x = self.block(x)
+        x += resiudal
+        x = self.relu(x)
+
         return x
