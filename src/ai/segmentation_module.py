@@ -10,6 +10,8 @@ from ai.utils import get_accuracy
 class SegmentationModule(pl.LightningModule):
     def __init__(self, model: nn.Module, lr=1e-3):
         super().__init__()
+        self.save_hyperparameters()
+
         self.model = model
         self.lr = lr
         self.loss = DiceLoss(sigmoid=True)
@@ -19,10 +21,6 @@ class SegmentationModule(pl.LightningModule):
         y_hat = self.model(x)
         loss = self.loss(y_hat, y)
 
-        y_pred_label = (y_hat >= 0.5).type(torch.float32)*255
-        accuracy = get_accuracy(y, y_pred_label)
-
-        self.log("train_acc", accuracy, on_epoch=True, on_step=False)
         self.log("train_loss", loss, on_epoch=True, on_step=False)
         return loss
 
@@ -31,10 +29,6 @@ class SegmentationModule(pl.LightningModule):
         y_hat = self.model(x)
         loss = self.loss(y_hat, y)
 
-        y_pred_label = (y_hat >= 0.5).type(torch.float32)*255
-        accuracy = get_accuracy(y, y_pred_label)
-
-        self.log("val_acc", accuracy, on_epoch=True, on_step=False)
         self.log("val_loss", loss, on_epoch=True, on_step=False)
         return loss
 

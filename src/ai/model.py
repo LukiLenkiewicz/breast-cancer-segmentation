@@ -11,7 +11,7 @@ class UNet(nn.Module):
         self,
         input_channels: int = 1,
         output_channels: int = 1,
-        layer_channels: list = [8, 16, 32, 64, 128],
+        layer_channels: list = [16, 32, 64, 128],
         mid_channel_size: int = 256
     ):
         super().__init__()
@@ -19,7 +19,7 @@ class UNet(nn.Module):
         contracting_layer_channels = [input_channels] + layer_channels
         self.contracting_layer = self._generate_contracting_layer(contracting_layer_channels)
         
-        self.mid_channel = ConvBlock(layer_channels[-1], mid_channel_size)
+        self.mid_channel = ResidualBlock(layer_channels[-1], mid_channel_size)
 
         expansive_layer_channels = layer_channels + [mid_channel_size]
         expansive_layer_channels = expansive_layer_channels[::-1]
@@ -69,34 +69,38 @@ class UNet(nn.Module):
 
 
 class EncoderBlock(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int) -> tuple[torch.Tensor, torch.Tensor]:
+    def __init__(self, in_channels: int, out_channels: int, dropout_rate=0.2) -> tuple[torch.Tensor, torch.Tensor]:
         super().__init__()
 
-        self.block = ConvBlock(in_channels, out_channels)
+        self.block = ResidualBlock(in_channels, out_channels)
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.dropout = nn.Dropout(p=dropout_rate)
 
     def forward(self, x):
         skipped = self.block(x)
         pooled = self.pool(skipped)
+        pooled = self.dropout(pooled)
         return pooled, skipped 
 
 
 class DecoderBlock(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int) -> torch.Tensor:
+    def __init__(self, in_channels: int, out_channels: int, dropout_rate=0.2) -> torch.Tensor:
         super().__init__()
 
-        self.up_sample = nn.ConvTranspose2d(in_channels, out_channels, kernel_size=2, stride=2, padding=0)
-        self.block = ConvBlock(out_channels*2, out_channels)
+        self.up_sample = nn.ConvTranspose2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1)
+        self.block = ResidualBlock(out_channels*2, out_channels)
+        self.dropout = nn.Dropout(p=dropout_rate)
 
     def forward(self, x, skipped):
         x = self.up_sample(x)
         concat = torch.cat([x, skipped], dim=1)
+        concat = self.dropout(concat)
         y = self.block(concat)
         return y
 
 
 class ConvBlock(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int, kernel_size: int = 3, stride: int = 1, padding: int = 1):
+    def __init__(self, in_channels: int, out_channels: int, kernel_size: int = 5, stride: int = 1, padding: int = 2):
         super().__init__()
         self.block = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding),
@@ -113,22 +117,26 @@ class ConvBlock(nn.Module):
 
 
 class ResidualBlock(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int, kernel_size: int = 3, stride: int = 1, padding: int = 1):
+    def __init__(self, input_channels: int, output_channels: int, kernel_size: int = 5, padding: int = 2):
         super().__init__()
+
+        self.conv = nn.Conv2d(input_channels, output_channels, kernel_size=kernel_size, stride=1, padding=2)
+
         self.block = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding),
-            nn.BatchNorm2d(out_channels),
+            nn.Conv2d(output_channels, output_channels, kernel_size=kernel_size, stride=1, padding=2),
+            nn.BatchNorm2d(output_channels),
             nn.ReLU(),
-            nn.Conv2d(out_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding),
-            nn.BatchNorm2d(out_channels),
+            nn.Conv2d(output_channels, output_channels, kernel_size=kernel_size, stride=1, padding=2),
+            nn.BatchNorm2d(output_channels),
         )
 
         self.relu = nn.ReLU()
 
     def forward(self, x):
-        resiudal = x
+        x = self.conv(x)
+        residual = x
         x = self.block(x)
-        x += resiudal
+        x = x + residual
         x = self.relu(x)
 
         return x
