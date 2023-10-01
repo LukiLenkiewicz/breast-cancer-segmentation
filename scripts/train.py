@@ -22,7 +22,7 @@ from ai.transforms import (
     train_transforms,
     val_transforms,
 )
-from ai.utils import get_data_paths, export_model
+from ai.utils import get_data_paths
 
 
 def get_dataloaders(
@@ -42,8 +42,8 @@ def get_datasets(train_paths: list[str], val_paths: list[str]) -> tuple[Dataset,
 def train(
         input_path: Path,
         run_name: Optional[str] = None, 
-        num_epochs: int = 50,
-        layer_sizes: List[int] = [8, 16, 32, 64, 128, 256],
+        num_epochs: int = 2000,
+        layer_sizes: List[int] = [16, 32, 64, 128, 256],
         mid_channels: int = 512,
         dropout: float = 0.25
         ):
@@ -59,16 +59,15 @@ def train(
     wandb_logger = WandbLogger(project='solvro-introduction-2', name=run_name)
 
     model = UNet(input_channels=1, layer_channels=layer_sizes, mid_channel_size=mid_channels)
-    segmentation_module = SegmentationModule(model, lr=1e-4)
+    segmentation_module = SegmentationModule(model, lr=1e-5)
 
-    checkpoint_callback = ModelCheckpoint(dirpath=Path.cwd(), save_top_k=2, monitor="val_loss")
+    checkpoint_callback = ModelCheckpoint(dirpath=Path("./models"), save_top_k=2, monitor="val_loss")
     predictions_callback = LogPredictionsCallback()
     trainer = pl.Trainer(max_epochs=num_epochs, accelerator="auto", logger=wandb_logger, callbacks=[checkpoint_callback, predictions_callback])
     trainer.fit(segmentation_module, train_dl, val_dl)
 
     wandb.finish()
 
-    export_model(model)
 
 if __name__ == "__main__":
     typer.run(train)

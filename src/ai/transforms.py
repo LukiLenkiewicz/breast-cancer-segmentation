@@ -2,14 +2,12 @@ from monai.transforms import (
     Compose,
     EnsureChannelFirstd,
     LoadImaged,
-    RandRotated,
-    RandFlipd,
-    Rand2DElasticd,
     ScaleIntensityd,
     RandAdjustContrastd,
+    RandGaussianNoised,
+    RandScaleIntensityd,
+    ToTensord,
 )
-
-import numpy as np
 
 
 def train_transforms() -> Compose:
@@ -18,8 +16,10 @@ def train_transforms() -> Compose:
             LoadImaged(["image", "label"], reader="PILReader"),
             EnsureChannelFirstd(["image", "label"]),
             ScaleIntensityd(["image", "label"]),
-            # RandFlipd(["image", "label"], prob=0.5),
-            # RandAdjustContrastd(["image"], prob=0.5, gamma=2)
+            # RandAdjustContrastd(keys=["image"], prob=0.50), 
+            # RandGaussianNoised(keys=["image"], prob=0.25),
+            # RandScaleIntensityd(keys=["image"], prob=0.5),
+            ToTensord(["image", "label"])
         ]
     )
     return transforms
@@ -31,6 +31,7 @@ def val_transforms() -> Compose:
             LoadImaged(["image", "label"], reader="PILReader"),
             EnsureChannelFirstd(["image", "label"]),
             ScaleIntensityd(["image", "label"]),
+            ToTensord(["image", "label"])
         ]
     )
     return transforms

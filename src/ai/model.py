@@ -84,7 +84,7 @@ class EncoderBlock(nn.Module):
 
 
 class DecoderBlock(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int, dropout_rate=0.2) -> torch.Tensor:
+    def __init__(self, in_channels: int, out_channels: int, dropout_rate=0.3) -> torch.Tensor:
         super().__init__()
 
         self.up_sample = nn.ConvTranspose2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1)

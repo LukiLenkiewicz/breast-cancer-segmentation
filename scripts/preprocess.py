@@ -4,7 +4,6 @@ import numpy as np
 import typer
 
 from monai.transforms import (
-    CenterSpatialCropd,
     Compose,
     EnsureChannelFirstd,
     LoadImaged,
@@ -22,8 +21,7 @@ def preprocess(input_path: Path, output_path: Path, n_jobs: int = 1):
         [
             LoadImaged(["image", "label"], reader="PILReader"),
             EnsureChannelFirstd(["image", "label"]),
-            Resized(["image"], spatial_size=(128, 128)),
-            Resized(["label"], spatial_size=(128, 128), mode='nearest-exact'),
+            Resized(["image", "label"], spatial_size=(128, 128)),
             # Add more transforms
             SaveImaged(
                 keys=["image"],
